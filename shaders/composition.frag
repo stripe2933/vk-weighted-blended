@@ -31,5 +31,5 @@ void main(){
     }
 
     vec3 averageColor = accumulation.rgb / max(accumulation.a, EPSILON);
-    outColor = vec4(averageColor, revealage);
+    outColor = vec4(averageColor, 1.0 - revealage);
 }

@@ -51,6 +51,19 @@ namespace vk_weighted_blended::vulkan::inline pipeline {
                     vku::Shader { COMPILED_SHADER_DIR "/composition.frag.spv", vk::ShaderStageFlagBits::eFragment }).get(),
 #endif
                 *pipelineLayout, 1)
+                .setPColorBlendState(vku::unsafeAddress(vk::PipelineColorBlendStateCreateInfo {
+                    {},
+                    false, {},
+                    vku::unsafeProxy({
+                        vk::PipelineColorBlendAttachmentState {
+                            true,
+                            vk::BlendFactor::eSrcAlpha, vk::BlendFactor::eOneMinusSrcAlpha, vk::BlendOp::eAdd,
+                            vk::BlendFactor::eSrcAlpha, vk::BlendFactor::eOneMinusSrcAlpha, vk::BlendOp::eAdd,
+                            vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA,
+                        },
+                    }),
+                    { 1.f, 1.f, 1.f, 1.f },
+                }))
                 .setRenderPass(*renderPass)
                 .setSubpass(2)
             } { }
