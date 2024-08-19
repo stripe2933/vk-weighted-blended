@@ -31,11 +31,11 @@ namespace vk_weighted_blended::vulkan {
                 [&](std::span<const float> priorities) {
                     return std::array {
                         vk::DeviceQueueCreateInfo {
-                                {},
-                                queueFamilies.graphicsPresent,
-                                priorities,
-                            },
-                        };
+                            {},
+                            queueFamilies.graphicsPresent,
+                            priorities,
+                        },
+                    };
                 },
                 std::array { 1.f },
             };
