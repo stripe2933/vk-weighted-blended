@@ -28,12 +28,8 @@ namespace vk_weighted_blended::vulkan {
 
             // Update per-frame descriptors.
             gpu.device.updateDescriptorSets({
-                weightedBlendedInputDescriptorSet.getWrite<0>(vku::unsafeProxy({
-                    vk::DescriptorImageInfo { {}, *weightedBlendedAttachmentGroup.colorAttachments[0].resolveView, vk::ImageLayout::eShaderReadOnlyOptimal },
-                })),
-                weightedBlendedInputDescriptorSet.getWrite<1>(vku::unsafeProxy({
-                    vk::DescriptorImageInfo { {}, *weightedBlendedAttachmentGroup.colorAttachments[1].resolveView, vk::ImageLayout::eShaderReadOnlyOptimal },
-                })),
+                weightedBlendedInputDescriptorSet.getWriteOne<0>({ {}, *weightedBlendedAttachmentGroup.colorAttachments[0].resolveView, vk::ImageLayout::eShaderReadOnlyOptimal }),
+                weightedBlendedInputDescriptorSet.getWriteOne<1>({ {}, *weightedBlendedAttachmentGroup.colorAttachments[1].resolveView, vk::ImageLayout::eShaderReadOnlyOptimal }),
             }, {});
 
             // Initialize attachment layouts.
