@@ -56,7 +56,7 @@ namespace vk_weighted_blended::vulkan {
         // Attachment groups.
         // --------------------
 
-        std::vector<ag::Composition> swapchainAttachmentGroups;
+        ag::Composition swapchainAttachmentGroup;
 
         SharedData(
             const Gpu &gpu [[clang::lifetimebound]],
@@ -70,7 +70,7 @@ namespace vk_weighted_blended::vulkan {
             weightedBlendedRenderer { gpu.device, weightedBlendedRenderPass },
             cubeMesh { gpu.allocator },
             cubeInstanceBuffer { gpu.allocator },
-            swapchainAttachmentGroups { createSwapchainAttachmentGroups(gpu.device) }{
+            swapchainAttachmentGroup { gpu.device, swapchainExtent, swapchainImages }{
             const vk::raii::CommandPool commandPool { gpu.device, vk::CommandPoolCreateInfo {
                 vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
                 gpu.queueFamilies.graphicsPresent,
@@ -100,20 +100,6 @@ namespace vk_weighted_blended::vulkan {
                 vk::CompositeAlphaFlagBitsKHR::eOpaque,
                 vk::PresentModeKHR::eFifo,
             } };
-        }
-
-        [[nodiscard]] auto createSwapchainAttachmentGroups(
-            const vk::raii::Device &device
-        ) const -> std::vector<ag::Composition> {
-            return swapchainImages
-                | std::views::transform([&](vk::Image image) {
-                    return ag::Composition {
-                        device,
-                        swapchainExtent,
-                        vku::Image { image, vk::Extent3D { swapchainExtent, 1 }, vk::Format::eB8G8R8A8Srgb, 1, 1 },
-                    };
-                })
-                | std::ranges::to<std::vector>();
         }
 
         auto recordAttachmentLayoutInitializationCommands(

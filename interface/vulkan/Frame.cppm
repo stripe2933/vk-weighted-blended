@@ -28,8 +28,8 @@ namespace vk_weighted_blended::vulkan {
 
             // Update per-frame descriptors.
             gpu.device.updateDescriptorSets({
-                weightedBlendedInputDescriptorSet.getWriteOne<0>({ {}, *weightedBlendedAttachmentGroup.colorAttachments[0].resolveView, vk::ImageLayout::eShaderReadOnlyOptimal }),
-                weightedBlendedInputDescriptorSet.getWriteOne<1>({ {}, *weightedBlendedAttachmentGroup.colorAttachments[1].resolveView, vk::ImageLayout::eShaderReadOnlyOptimal }),
+                weightedBlendedInputDescriptorSet.getWriteOne<0>({ {}, *weightedBlendedAttachmentGroup.getColorAttachment(0).resolveView, vk::ImageLayout::eShaderReadOnlyOptimal }),
+                weightedBlendedInputDescriptorSet.getWriteOne<1>({ {}, *weightedBlendedAttachmentGroup.getColorAttachment(1).resolveView, vk::ImageLayout::eShaderReadOnlyOptimal }),
             }, {});
 
             // Initialize attachment layouts.
@@ -132,18 +132,11 @@ namespace vk_weighted_blended::vulkan {
         const SharedData &sharedData;
 
         // --------------------
-        // GPU resources.
-        // --------------------
-
-        vku::AllocatedImage opaqueColorImage = createOpaqueColorImage();
-        vku::AllocatedImage depthImage = createDepthImage();
-
-        // --------------------
         // Frame-exclusive attachment groups.
         // --------------------
 
-        std::vector<ag::Opaque> opaqueAttachmentGroups = createOpaqueAttachmentGroups();
-        ag::WeightedBlended weightedBlendedAttachmentGroup { gpu, sharedData.swapchainExtent, depthImage };
+        ag::Opaque opaqueAttachmentGroup { gpu, sharedData.swapchainExtent, sharedData.swapchainImages };
+        ag::WeightedBlended weightedBlendedAttachmentGroup { gpu, sharedData.swapchainExtent, opaqueAttachmentGroup.depthStencilAttachment->image };
 
         // --------------------
         // Framebuffers.
@@ -177,73 +170,24 @@ namespace vk_weighted_blended::vulkan {
         vk::raii::Semaphore drawFinishSemaphore { gpu.device, vk::SemaphoreCreateInfo{} };
         vk::raii::Fence frameFinishFence { gpu.device, vk::FenceCreateInfo { vk::FenceCreateFlagBits::eSignaled } };
 
-        [[nodiscard]] auto createOpaqueColorImage() const -> vku::AllocatedImage {
-            return { gpu.allocator, vk::ImageCreateInfo {
-                {},
-                vk::ImageType::e2D,
-                vk::Format::eB8G8R8A8Srgb,
-                vk::Extent3D { sharedData.swapchainExtent, 1 },
-                1, 1,
-                vk::SampleCountFlagBits::e4,
-                vk::ImageTiling::eOptimal,
-                vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransientAttachment,
-            }, vku::allocation::deviceLocalTransient };
-        }
-
-        [[nodiscard]] auto createDepthImage() const -> vku::AllocatedImage {
-            return {
-                gpu.allocator,
-                vk::ImageCreateInfo {
-                    {},
-                    vk::ImageType::e2D,
-                    vk::Format::eD32Sfloat,
-                    vk::Extent3D { sharedData.swapchainExtent, 1 },
-                    1, 1,
-                    vk::SampleCountFlagBits::e4,
-                    vk::ImageTiling::eOptimal,
-                    vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eTransientAttachment,
-                },
-#if __APPLE__
-                // MoltenVK bug. Described in https://github.com/stripe2933/vk-deferred/blob/75bf7536f4c9c6af76fe9875853f9e785ca1dfb2/interface/vulkan/attachment_group/GBuffer.cppm#L28.
-                vku::allocation::deviceLocal,
-#else
-                vku::allocation::deviceLocalTransient,
-#endif
-            };
-        }
-
-        [[nodiscard]] auto createOpaqueAttachmentGroups() const -> std::vector<ag::Opaque> {
-            return sharedData.swapchainImages
-                | std::views::transform([this](vk::Image swapchainImage) {
-                    return ag::Opaque {
-                        gpu,
-                        sharedData.swapchainExtent,
-                        opaqueColorImage,
-                        vku::Image { swapchainImage, vk::Extent3D { sharedData.swapchainExtent, 1 }, vk::Format::eB8G8R8A8Srgb, 1, 1 },
-                        depthImage,
-                    };
-                })
-                | std::ranges::to<std::vector>();
-        }
-
         [[nodiscard]] auto createDescriptorPool() const -> vk::raii::DescriptorPool {
             return { gpu.device, sharedData.weightedBlendedInputDescriptorSetLayout.getPoolSize().getDescriptorPoolCreateInfo() };
         }
 
         [[nodiscard]] auto createFramebuffers() const -> std::vector<vk::raii::Framebuffer> {
-            return opaqueAttachmentGroups
-                | std::views::transform([&](const auto &opaqueAttachmentGroup) {
+            return opaqueAttachmentGroup.getSwapchainAttachment(0).resolveViews
+                | std::views::transform([&](vk::ImageView swapchainImageView) {
                     return vk::raii::Framebuffer { gpu.device, vk::FramebufferCreateInfo {
                         {},
                         *sharedData.weightedBlendedRenderPass,
                         vku::unsafeProxy({
-                            *opaqueAttachmentGroup.colorAttachments[0].view,
-                            *opaqueAttachmentGroup.colorAttachments[0].resolveView,
+                            *opaqueAttachmentGroup.getSwapchainAttachment(0).view,
+                            swapchainImageView,
                             *opaqueAttachmentGroup.depthStencilAttachment->view,
-                            *weightedBlendedAttachmentGroup.colorAttachments[0].view,
-                            *weightedBlendedAttachmentGroup.colorAttachments[0].resolveView,
-                            *weightedBlendedAttachmentGroup.colorAttachments[1].view,
-                            *weightedBlendedAttachmentGroup.colorAttachments[1].resolveView,
+                            *weightedBlendedAttachmentGroup.getColorAttachment(0).view,
+                            *weightedBlendedAttachmentGroup.getColorAttachment(0).resolveView,
+                            *weightedBlendedAttachmentGroup.getColorAttachment(1).view,
+                            *weightedBlendedAttachmentGroup.getColorAttachment(1).resolveView,
                         }),
                         sharedData.swapchainExtent.width, sharedData.swapchainExtent.height, 1,
                     } };
@@ -271,37 +215,37 @@ namespace vk_weighted_blended::vulkan {
                         {}, {},
                         {}, vk::ImageLayout::eColorAttachmentOptimal,
                         vk::QueueFamilyIgnored, vk::QueueFamilyIgnored,
-                        opaqueColorImage, vku::fullSubresourceRange(),
+                        opaqueAttachmentGroup.getSwapchainAttachment(0).image, vku::fullSubresourceRange(),
                     },
                     vk::ImageMemoryBarrier {
                         {}, {},
                         {}, vk::ImageLayout::eDepthStencilAttachmentOptimal,
                         vk::QueueFamilyIgnored, vk::QueueFamilyIgnored,
-                        depthImage, vku::fullSubresourceRange(vk::ImageAspectFlagBits::eDepth),
+                        opaqueAttachmentGroup.depthStencilAttachment->image, vku::fullSubresourceRange(vk::ImageAspectFlagBits::eDepth),
                     },
                     vk::ImageMemoryBarrier {
                         {}, {},
                         {}, vk::ImageLayout::eColorAttachmentOptimal,
                         vk::QueueFamilyIgnored, vk::QueueFamilyIgnored,
-                        weightedBlendedAttachmentGroup.colorAttachments[0].image, vku::fullSubresourceRange(),
+                        weightedBlendedAttachmentGroup.getColorAttachment(0).image, vku::fullSubresourceRange(),
                     },
                     vk::ImageMemoryBarrier {
                         {}, {},
                         {}, vk::ImageLayout::eShaderReadOnlyOptimal,
                         vk::QueueFamilyIgnored, vk::QueueFamilyIgnored,
-                        weightedBlendedAttachmentGroup.colorAttachments[0].resolveImage, vku::fullSubresourceRange(),
+                        weightedBlendedAttachmentGroup.getColorAttachment(0).resolveImage, vku::fullSubresourceRange(),
                     },
                     vk::ImageMemoryBarrier {
                         {}, {},
                         {}, vk::ImageLayout::eColorAttachmentOptimal,
                         vk::QueueFamilyIgnored, vk::QueueFamilyIgnored,
-                        weightedBlendedAttachmentGroup.colorAttachments[1].image, vku::fullSubresourceRange(),
+                        weightedBlendedAttachmentGroup.getColorAttachment(1).image, vku::fullSubresourceRange(),
                     },
                     vk::ImageMemoryBarrier {
                         {}, {},
                         {}, vk::ImageLayout::eShaderReadOnlyOptimal,
                         vk::QueueFamilyIgnored, vk::QueueFamilyIgnored,
-                        weightedBlendedAttachmentGroup.colorAttachments[1].resolveImage, vku::fullSubresourceRange(),
+                        weightedBlendedAttachmentGroup.getColorAttachment(1).resolveImage, vku::fullSubresourceRange(),
                     },
                 });
         }
