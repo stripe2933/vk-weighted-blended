@@ -1,6 +1,5 @@
 # vk-weighted-blended
 
-
 ![Linux](https://github.com/stripe2933/vk-weighted-blended/actions/workflows/linux.yml/badge.svg)
 ![Windows](https://github.com/stripe2933/vk-weighted-blended/actions/workflows/windows.yml/badge.svg)
 
@@ -26,6 +25,8 @@ This project depends on:
 - My own Vulkan-Hpp helper library, [vku](https://github.com/stripe2933/vku/tree/module) (branch `module`), which has the following dependencies:
   - [Vulkan-Hpp](https://github.com/KhronosGroup/Vulkan-Hpp)
   - [VulkanMemoryAllocator-Hpp](https://github.com/YaaZ/VulkanMemoryAllocator-Hpp)
+
+Dependencies will be automatically fetched using vcpkg.
 
 ### Build Steps
 

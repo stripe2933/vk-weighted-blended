@@ -29,34 +29,10 @@ namespace vk_weighted_blended::vulkan::inline pipeline {
                 }),
             } },
             pipeline { device, nullptr, vku::getDefaultGraphicsPipelineCreateInfo(
-#ifdef _MSC_VER
-                // TODO: due to the MSVC C++20 module bug, vku::createPipelineStages not works well. Use it instead when fixed.
-                vku::unsafeProxy({
-                    vk::PipelineShaderStageCreateInfo {
-                        {},
-                        vk::ShaderStageFlagBits::eVertex,
-                        *vk::raii::ShaderModule { device, vk::ShaderModuleCreateInfo {
-                            {},
-                            vku::unsafeProxy(vku::Shader { COMPILED_SHADER_DIR "/weighted_blended.vert.spv", vk::ShaderStageFlagBits::eVertex }.code),
-                        } },
-                        "main",
-                    },
-                    vk::PipelineShaderStageCreateInfo {
-                        {},
-                        vk::ShaderStageFlagBits::eFragment,
-                        *vk::raii::ShaderModule { device, vk::ShaderModuleCreateInfo {
-                            {},
-                            vku::unsafeProxy(vku::Shader { COMPILED_SHADER_DIR "/weighted_blended.frag.spv", vk::ShaderStageFlagBits::eFragment }.code),
-                        } },
-                        "main",
-                    },
-                }),
-#else
                 vku::createPipelineStages(
                     device,
                     vku::Shader { COMPILED_SHADER_DIR "/weighted_blended.vert.spv", vk::ShaderStageFlagBits::eVertex },
                     vku::Shader { COMPILED_SHADER_DIR "/weighted_blended.frag.spv", vk::ShaderStageFlagBits::eFragment }).get(),
-#endif
                 *pipelineLayout, 2, true, vk::SampleCountFlagBits::e4)
                 .setPVertexInputState(vku::unsafeAddress(vk::PipelineVertexInputStateCreateInfo {
                     {},
