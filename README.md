@@ -30,8 +30,6 @@ Dependencies will be automatically fetched using vcpkg.
 
 ### Build Steps
 
-### 1. Using vcpkg
-
 > [!TIP]
 > This project uses GitHub Runner to ensure build compatibility on both Linux and Windows, with dependency management handled by vcpkg. You can check the workflow files in the [.github/workflows](.github/workflows) folder.
 
@@ -40,30 +38,11 @@ This project, along with its dependency `vku`, supports vcpkg for dependency man
 ```sh
 git clone https://github.com/stripe2933/vk-weighted-blended
 cd vk-weighted-blended
-cmake --preset=vcpkg # Or use your own configuration preset that inherits from the "vcpkg" preset.
+cmake --preset=default # Or use your own configuration preset that inherits from the "default" preset.
 cmake --build build -t vk-weighted-blended
 ```
 
 The executable will be located in the build folder.
-
-### 2. Manual Dependency Setup
-
-If your system already has the required dependencies installed, and the following CMake commands are available:
-
-```cmake
-find_package(VulkanMemoryAllocator CONFIG REQUIRED)
-find_package(VulkanMemoryAllocator-Hpp CONFIG REQUIRED)
-find_package(vku CONFIG REQUIRED)
-```
-
-You can build the project with these commands:
-
-```sh
-git clone https://github.com/stripe2933/vk-weighted-blended
-cd vk-weighted-blended
-cmake --preset=default
-cmake --build build -t vk-weighted-blended
-```
 
 ### Shader compilation
 
@@ -78,7 +57,7 @@ All shaders are located in the [shaders](/shaders) folder and need to be manuall
 
 Screenshot from Xcode Metal Debugger.
 
-Note that this application uses 4x MSAA, therefore each color attachments have their own resolve attachments and they are not stored for the next subpass usage.
+Note that this application uses 4x MSAA, therefore each color attachments have their own resolve attachments, and they are not stored for the next subpass usage.
 
 ## License
 
