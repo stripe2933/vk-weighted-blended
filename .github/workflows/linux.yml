@@ -27,12 +27,11 @@ jobs:
           vulkan-use-cache: true
 
       - name: Install Ninja and build dependencies
-        run: |
-          sudo apt-get install ninja-build xorg-dev libc++-dev libc++abi-dev
+        run: sudo apt-get install ninja-build xorg-dev libc++-dev libc++abi-dev
 
       - name: Install vcpkg
         run: |
-          git clone https://github.com/microsoft/vcpkg.git
+          git clone https://github.com/microsoft/vcpkg.git --depth 1
           cd vcpkg && ./bootstrap-vcpkg.sh
           echo "VCPKG_ROOT=${{ github.workspace }}/vcpkg" >> $GITHUB_ENV
 
