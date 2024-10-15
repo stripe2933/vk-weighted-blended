@@ -31,8 +31,8 @@ namespace vk_weighted_blended::vulkan::inline pipeline {
             pipeline { device, nullptr, vku::getDefaultGraphicsPipelineCreateInfo(
                 vku::createPipelineStages(
                     device,
-                    vku::Shader { COMPILED_SHADER_DIR "/weighted_blended.vert.spv", vk::ShaderStageFlagBits::eVertex },
-                    vku::Shader { COMPILED_SHADER_DIR "/weighted_blended.frag.spv", vk::ShaderStageFlagBits::eFragment }).get(),
+                    vku::Shader::fromSpirvFile(COMPILED_SHADER_DIR "/weighted_blended.vert.spv", vk::ShaderStageFlagBits::eVertex),
+                    vku::Shader::fromSpirvFile(COMPILED_SHADER_DIR "/weighted_blended.frag.spv", vk::ShaderStageFlagBits::eFragment)).get(),
                 *pipelineLayout, 2, true, vk::SampleCountFlagBits::e4)
                 .setPVertexInputState(vku::unsafeAddress(vk::PipelineVertexInputStateCreateInfo {
                     {},

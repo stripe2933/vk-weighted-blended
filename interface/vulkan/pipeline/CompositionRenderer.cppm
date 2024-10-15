@@ -24,8 +24,8 @@ namespace vk_weighted_blended::vulkan::inline pipeline {
             pipeline { device, nullptr, vku::getDefaultGraphicsPipelineCreateInfo(
                 vku::createPipelineStages(
                     device,
-                    vku::Shader { COMPILED_SHADER_DIR "/composition.vert.spv", vk::ShaderStageFlagBits::eVertex },
-                    vku::Shader { COMPILED_SHADER_DIR "/composition.frag.spv", vk::ShaderStageFlagBits::eFragment }).get(),
+                    vku::Shader::fromSpirvFile(COMPILED_SHADER_DIR "/composition.vert.spv", vk::ShaderStageFlagBits::eVertex),
+                    vku::Shader::fromSpirvFile(COMPILED_SHADER_DIR "/composition.frag.spv", vk::ShaderStageFlagBits::eFragment)).get(),
                 *pipelineLayout, 1)
                 .setPColorBlendState(vku::unsafeAddress(vk::PipelineColorBlendStateCreateInfo {
                     {},
