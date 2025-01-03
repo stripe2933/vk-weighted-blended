@@ -5,12 +5,12 @@ import vku;
 export import :vulkan.Gpu;
 
 namespace vk_weighted_blended::vulkan::ag {
-    export struct Opaque final : vku::MsaaAttachmentGroup {
+    export struct Opaque final : vku::MultisampleAttachmentGroup {
         Opaque(
             const Gpu &gpu [[clang::lifetimebound]],
             const vk::Extent2D &extent,
             std::span<const vk::Image> swapchainImages
-        ) : MsaaAttachmentGroup { extent, vk::SampleCountFlagBits::e4 } {
+        ) : MultisampleAttachmentGroup { extent, vk::SampleCountFlagBits::e4 } {
             addSwapchainAttachment(
                 gpu.device,
                 storeImage(createColorImage(gpu.allocator, vk::Format::eB8G8R8A8Srgb)),

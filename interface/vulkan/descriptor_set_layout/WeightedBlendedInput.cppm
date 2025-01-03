@@ -13,10 +13,9 @@ namespace vk_weighted_blended::vulkan::dsl {
                 device,
                 vk::DescriptorSetLayoutCreateInfo {
                     {},
-                    vku::unsafeProxy({
-                        vk::DescriptorSetLayoutBinding { 0, vk::DescriptorType::eInputAttachment, 1, vk::ShaderStageFlagBits::eFragment }, // Accumulation.
-                        vk::DescriptorSetLayoutBinding { 1, vk::DescriptorType::eInputAttachment, 1, vk::ShaderStageFlagBits::eFragment }, // Revealage.
-                    }),
+                    vku::unsafeProxy(getBindings(
+                        { 1, vk::ShaderStageFlagBits::eFragment }, /* Accumulation. */
+                        { 1, vk::ShaderStageFlagBits::eFragment } /* Revealage. */)),
                 },
             } { }
     };

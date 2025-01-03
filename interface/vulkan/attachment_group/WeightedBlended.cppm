@@ -4,12 +4,12 @@ export import vku;
 export import :vulkan.Gpu;
 
 namespace vk_weighted_blended::vulkan::ag {
-    export struct WeightedBlended final : vku::MsaaAttachmentGroup {
+    export struct WeightedBlended final : vku::MultisampleAttachmentGroup {
         WeightedBlended(
             const Gpu &gpu [[clang::lifetimebound]],
             const vk::Extent2D &extent,
             const vku::Image &depthImage
-        ) : MsaaAttachmentGroup { extent, vk::SampleCountFlagBits::e4 } {
+        ) : MultisampleAttachmentGroup { extent, vk::SampleCountFlagBits::e4 } {
             addColorAttachment(
                 gpu.device,
                 storeImage(createColorImage(gpu.allocator, vk::Format::eR16G16B16A16Sfloat)),

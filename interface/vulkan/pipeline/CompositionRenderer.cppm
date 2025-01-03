@@ -21,7 +21,7 @@ namespace vk_weighted_blended::vulkan::inline pipeline {
             const rp::WeightedBlended &renderPass [[clang::lifetimebound]]
         ) : pipelineLayout { device, vk::PipelineLayoutCreateInfo {
                 {},
-                vku::unsafeProxy(*descriptorSetLayout),
+                *descriptorSetLayout,
             } },
             pipeline { device, nullptr, vku::getDefaultGraphicsPipelineCreateInfo(
                 vku::createPipelineStages(
