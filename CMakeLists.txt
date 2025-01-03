@@ -69,5 +69,19 @@ target_link_libraries(vk-weighted-blended PRIVATE
 )
 target_compile_definitions(vk-weighted-blended PRIVATE
     GLFW_INCLUDE_NONE
-    COMPILED_SHADER_DIR="${CMAKE_CURRENT_SOURCE_DIR}/shaders"
+)
+
+# ----------------
+# Shader compilation.
+# ----------------
+
+include(cmake/CompileShader.cmake)
+
+target_link_shaders(vk-weighted-blended
+    shaders/composition.frag
+    shaders/composition.vert
+    shaders/opaque.frag
+    shaders/opaque.vert
+    shaders/weighted_blended.frag
+    shaders/weighted_blended.vert
 )

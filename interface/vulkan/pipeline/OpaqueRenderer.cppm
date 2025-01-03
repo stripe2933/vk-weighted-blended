@@ -6,6 +6,8 @@ import std;
 export import glm;
 export import vulkan_hpp;
 import vku;
+import :shader.opaque_frag;
+import :shader.opaque_vert;
 export import :vulkan.rp.WeightedBlended;
 
 namespace vk_weighted_blended::vulkan::inline pipeline {
@@ -31,8 +33,8 @@ namespace vk_weighted_blended::vulkan::inline pipeline {
             pipeline { device, nullptr, vku::getDefaultGraphicsPipelineCreateInfo(
                 vku::createPipelineStages(
                     device,
-                    vku::Shader::fromSpirvFile(COMPILED_SHADER_DIR "/opaque.vert.spv", vk::ShaderStageFlagBits::eVertex),
-                    vku::Shader::fromSpirvFile(COMPILED_SHADER_DIR "/opaque.frag.spv", vk::ShaderStageFlagBits::eFragment)).get(),
+                    vku::Shader { shader::opaque_vert, vk::ShaderStageFlagBits::eVertex },
+                    vku::Shader { shader::opaque_frag, vk::ShaderStageFlagBits::eFragment }).get(),
                 *pipelineLayout, 1, true, vk::SampleCountFlagBits::e4)
                 .setPVertexInputState(vku::unsafeAddress(vk::PipelineVertexInputStateCreateInfo {
                     {},

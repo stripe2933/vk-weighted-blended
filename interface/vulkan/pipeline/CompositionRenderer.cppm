@@ -5,6 +5,8 @@ import std;
 #endif
 export import vulkan_hpp;
 import vku;
+import :shader.composition_frag;
+import :shader.composition_vert;
 export import :vulkan.dsl.WeightedBlendedInput;
 export import :vulkan.rp.WeightedBlended;
 
@@ -24,8 +26,8 @@ namespace vk_weighted_blended::vulkan::inline pipeline {
             pipeline { device, nullptr, vku::getDefaultGraphicsPipelineCreateInfo(
                 vku::createPipelineStages(
                     device,
-                    vku::Shader::fromSpirvFile(COMPILED_SHADER_DIR "/composition.vert.spv", vk::ShaderStageFlagBits::eVertex),
-                    vku::Shader::fromSpirvFile(COMPILED_SHADER_DIR "/composition.frag.spv", vk::ShaderStageFlagBits::eFragment)).get(),
+                    vku::Shader { shader::composition_vert, vk::ShaderStageFlagBits::eVertex },
+                    vku::Shader { shader::composition_frag, vk::ShaderStageFlagBits::eFragment }).get(),
                 *pipelineLayout, 1)
                 .setPColorBlendState(vku::unsafeAddress(vk::PipelineColorBlendStateCreateInfo {
                     {},
