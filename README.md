@@ -1,8 +1,6 @@
 # vk-weighted-blended
 
-![Windows](https://github.com/stripe2933/vk-weighted-blended/actions/workflows/windows.yml/badge.svg)
-![macOS](https://github.com/stripe2933/vk-weighted-blended/actions/workflows/macos.yml/badge.svg)
-![Linux](https://github.com/stripe2933/vk-weighted-blended/actions/workflows/linux.yml/badge.svg)
+![Build](https://github.com/stripe2933/vk-weighted-blended/actions/workflows/build.yml/badge.svg)
 
 ![Running screenshot](doc/images/running-screenshot.png)
 
